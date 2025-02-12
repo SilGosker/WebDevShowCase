@@ -4,6 +4,7 @@ using ShowCase.Services.Mailing;
 
 var builder = WebApplication.CreateBuilder(args);
 
+AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(3));
 
 builder.Services.AddFastEndpoints();
 builder.Services.AddCors(options =>
