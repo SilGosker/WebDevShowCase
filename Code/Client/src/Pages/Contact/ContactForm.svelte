@@ -112,7 +112,7 @@
             />
         </div>
 
-        <div class="w-full flex justify-end">
+        <div class="w-full flex justify-center">
             {#if isLoading}
                 <button
                     class="mt-3 py-2 px-4 border-sky-600 bg-sky-400 text-white rounded-lg"
@@ -149,15 +149,16 @@
                     </svg>
                 </button>
             {:else if showSubmitBtn}
-            <button type="submit" class="py-2 px-4 border-sky-600 bg-sky-400 text-white rounded-lg">
-                Versturen
-            </button>
+                <button type="submit" class="py-2 px-4 border-sky-600 bg-sky-400 text-white rounded-lg">
+                    Versturen
+                </button>
             {:else}
                 <Recaptcha
-                    sitekey={"6LezsNMqAAAAACJzRSKBytTCjIU5ClHsTirQenV7"}
-                    size={"normal"}
-                    on:success={captchaCleared}
+                sitekey={"6LezsNMqAAAAACJzRSKBytTCjIU5ClHsTirQenV7"}
+                size={"normal"}
+                on:success={captchaCleared}
                 />
+
             {/if}
         </div>
     </div>
