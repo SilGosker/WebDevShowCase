@@ -1,5 +1,5 @@
 <script lang="ts">
-    let errorMsg = "";
+    let internalErrorMessage = "";
     export let value: string | number = undefined;
     export let onchange: (value: string | number, valid: boolean) => void =
         undefined;
@@ -12,37 +12,49 @@
         | "email"
         | "number"
         | "tel"
-        | "longtext" = "text";
+        | "longtext"
+        | "password"
+        | "password-nocheck"
+        = "text";
+    export let errorMessage: string = '';
 
     function valueChanged(event: Event) {
-        errorMsg = "";
+        internalErrorMessage = "";
         const value = (event.target as HTMLInputElement).value as string;
 
         if (!value && required) {
-            errorMsg = name + " is verplicht";
+            internalErrorMessage = name + " is verplicht";
             onchange?.(value, false);
             return;
         }
 
         if (maxLength && value.length > maxLength) {
-            errorMsg =
-                name + " mag niet langer zijn dan " + maxLength + " karakters.";
+            internalErrorMessage = name + " mag niet langer zijn dan " + maxLength + " karakters.";
             onchange?.(value, false);
             return;
+        }
+
+        if (type == "password") {
+            const passwordRegex = /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/;
+            if (!value.match(passwordRegex)) {
+                internalErrorMessage = name + " moet minimaal 8 karakters lang zijn, een getal, hoofdletter en een speciaal karakter bevatten.";
+                onchange?.(value, false);
+                return;
+            }
         }
 
         if (type == "email") {
             const emailRegex =
                 /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
             if (!value.match(emailRegex)) {
-                errorMsg = name + " is een ongeldige e-mail adres";
+                internalErrorMessage = name + " is een ongeldige e-mail adres";
                 onchange?.(value, false);
                 return;
             }
         }
 
         if (type == "number") {
-            errorMsg = name + " is een ongeldig getal";
+            internalErrorMessage = name + " is een ongeldig getal";
             try {
                 parseInt(value);
             } catch (e) {
@@ -57,7 +69,7 @@
 <div class="p-2 w-full">
     {#if type === "longtext"}
         <textarea
-            class="h-64 w-full border p-2 rounded {errorMsg
+            class="h-64 w-full border p-2 rounded {errorMessage || internalErrorMessage
                 ? 'border-red-600'
                 : ''}"
             {required}
@@ -68,14 +80,15 @@
         ></textarea>
     {:else}
         <input
-            {type}
-            class="w-full border rounded p-2 {errorMsg ? 'border-red-600' : ''}"
+            type={type === "password-nocheck" ? "password" : type}
+            class="w-full border rounded p-2 {errorMessage || internalErrorMessage ? 'border-red-600' : ''}"
             {required}
             on:change={valueChanged}
             maxlength={maxLength || undefined}
+            autocomplete="{type == 'password' ? 'off' : 'on'}"
             placeholder={name + (required ? "*" : "")}
             value={value || ""}
         />
     {/if}
-    <small class="text-red-600">{errorMsg}</small>
+    <small class="text-red-600">{errorMessage || internalErrorMessage}</small>
 </div>

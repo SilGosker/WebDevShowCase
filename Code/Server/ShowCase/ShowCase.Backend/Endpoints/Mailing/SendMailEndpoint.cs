@@ -22,13 +22,6 @@ public class SendMailEndpoint : Endpoint<SendMailRequest>
 
     public override async Task HandleAsync(SendMailRequest req, CancellationToken ct)
     {
-        if (ValidationFailed)
-        {
-            await SendAsync(ValidationFailures.Select(e => new { field = e.PropertyName, error = e.ErrorMessage }),
-                StatusCodes.Status400BadRequest, ct);
-            return;
-        }
-
         StringBuilder sb = new(req.Body);
         sb
             .AppendLine()
