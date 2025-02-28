@@ -1,16 +1,17 @@
+global using FluentValidation;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ShowCase.Services.Account;
 using ShowCase.Services.Configuration;
 using ShowCase.Services.Mailing;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
+using EasySockets.Builder;
 using Microsoft.EntityFrameworkCore;
 using ShowCase.Backend.Configuration;
 using ShowCase.Services.Database;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
+using ShowCase.Services.Plants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(jwtOptions.SecretKey))
         };
     });
+
+builder.Services.AddEasySocketServices();
 
 builder.Services.AddDbContext<KasDbContext>(options =>
 {
@@ -58,6 +61,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(nameof(SmtpOptions)));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
@@ -68,10 +72,15 @@ app.UseCors("SvelteApp");
 app.UseHsts();
 app.UseHttpsRedirection();
 
+app.UseEasySockets();
+
 app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapFastEndpoints(options =>
 {
     options.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 
 app.Run();
+public partial class Program;

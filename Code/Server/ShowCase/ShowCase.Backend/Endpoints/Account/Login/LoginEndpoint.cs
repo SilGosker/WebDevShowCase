@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using FastEndpoints;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ShowCase.Backend.Configuration;
@@ -45,6 +44,7 @@ public class LoginEndpoint : Endpoint<LoginRequest, LoginResponse?>
                 new Claim(ClaimTypes.Name, account.Email),
                 new Claim(ClaimTypes.Email, account.Email),
                 new Claim(ClaimTypes.Role, account.Role.ToString()),
+                new Claim("Id", account.Id.ToString())
             }),
             Expires = DateTime.UtcNow.AddHours(1),
             Issuer = _options.Issuer,

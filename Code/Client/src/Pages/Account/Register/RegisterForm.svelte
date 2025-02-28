@@ -2,7 +2,14 @@
     import Swal from "sweetalert2";
     import FormField from "../../../Components/Form/FormField.svelte";
     import { ApiContext } from "../../../Functions/ApiContext";
+    import { UserContext } from "../../../Functions/UserContext";
+    import { push } from "svelte-spa-router";
 
+    var userContext = new UserContext();
+    if (userContext.isAuth()) {
+        push("/plants");
+    }
+    
     const email = {
         valid: false,
         value: "",
@@ -58,7 +65,7 @@
             : "error",
         });
 
-        window.location.href = '/#/account/login';
+        push("/account/login");
     }
 </script>
 

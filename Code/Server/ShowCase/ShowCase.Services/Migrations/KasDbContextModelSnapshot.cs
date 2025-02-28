@@ -54,6 +54,42 @@ namespace ShowCase.Services.Migrations
 
                     b.ToTable("Accounts");
                 });
+
+            modelBuilder.Entity("ShowCase.Services.Plants.Plant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Plants");
+                });
+
+            modelBuilder.Entity("ShowCase.Services.Plants.Plant", b =>
+                {
+                    b.HasOne("ShowCase.Services.Account.DbAccount", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
 #pragma warning restore 612, 618
         }
     }

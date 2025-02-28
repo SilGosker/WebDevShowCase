@@ -4,6 +4,12 @@
     import FormField from "../../../Components/Form/FormField.svelte";
     import { ApiContext } from "../../../Functions/ApiContext";
     import { UserContext } from "../../../Functions/UserContext";
+    import { push } from "svelte-spa-router";
+
+    var userContext = new UserContext();
+    if (userContext.isAuth()) {
+        push("/plants");
+    }
 
     const email = {
         valid: false,
@@ -34,6 +40,7 @@
             email: email.value,
             password: password.value
         });
+        
         if (!result) {
             Swal.fire({
                 title: "Kon niet inloggen",
@@ -43,13 +50,13 @@
             return;
         }
 
-        new UserContext().setAuth({
+        userContext.setAuth({
             token: result.token,
             role: result.role,
             name: email.value,
         });
         
-        window.location.href = '/#/plants/index';
+        push("/plants");
     }
 </script>
 

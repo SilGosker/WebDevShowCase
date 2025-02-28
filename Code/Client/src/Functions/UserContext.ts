@@ -6,20 +6,31 @@ export class UserContext {
     constructor() {
         this._token = localStorage.getItem("token");
         const credentials = JSON.parse(localStorage.getItem("credentials"));
-        this._name = credentials.name;
-        this._role = credentials.role;
+        if (credentials) {
+            this._name = credentials.name;
+            this._role = credentials.role;
+        }
     }
 
     setAuth(credentials : { name: string, role: string, token : string}) {
         this._token = credentials.token;
         this._name = credentials.name;
         this._role = credentials.role;
-        localStorage.setItem("token", this._token);
+        localStorage.setItem("token", this._token); 
         localStorage.setItem("credentials", JSON.stringify({
             name: credentials.name,
             role: credentials.role
         }));
     }
+    
+    clear() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("credentials");
+        this._token = null;
+        this._name = '';
+        this._role = '';
+    }
+    
     isAuth() {
         return !!(this._name && this._token && this._role);
     }

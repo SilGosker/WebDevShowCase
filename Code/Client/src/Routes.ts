@@ -1,11 +1,10 @@
-import HomePage from "./Pages/Home/HomePage.svelte";
-import ContactPage from "./Pages/Contact/ContactPage.svelte";
 import NotFound from "./Pages/NotFound.svelte";
-import Routes from "./Pages/Account/Routes";
-
+import AccountRoutes from "./Pages/Account/Routes";
+import PlantRoutes from "./Pages/Plant/Routes";
+import HomeRoutes from "./Pages/Default/Routes";
 export default {
-    ...Routes,
-    "/": HomePage,
-    "/contact": ContactPage,
+    ...AccountRoutes,
+    ...PlantRoutes,
+    ...HomeRoutes,
     "*": NotFound
 }

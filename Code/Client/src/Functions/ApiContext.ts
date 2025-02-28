@@ -1,23 +1,33 @@
+import { push } from "svelte-spa-router";
 import { UserContext } from "./UserContext";
 export class ApiContext {
     private baseUrl: string = "https://localhost:7196/";
     private userContext = new UserContext();
 
-    private async sendRequest(url: string, method: string, body: object): Promise<Response> {
+    private async sendRequest(url: string, method: string, body: object = null): Promise<Response> {
         const headerObj = {
             'Content-Type': 'application/json',
         };
-        
+
         if (this.userContext.isAuth()) {
             const bearerToken = this.userContext.token();
             headerObj['Authorization'] = 'Bearer ' + bearerToken;
         }
 
-        return await fetch(url, {
+        const args = {
             method: method,
             headers: headerObj,
-            body: JSON.stringify(body)
-        });
+            body: undefined,
+        }
+
+        if (body) {
+            args.body = JSON.stringify(body)
+        }
+        const response = await fetch(this.baseUrl + url, args);
+        if (response.status === 401) {
+            push("/account/login");
+        }
+        return response;
     }
 
     async submitContactForm(formObj: {
@@ -28,7 +38,7 @@ export class ApiContext {
         subject: string
     }): Promise<boolean> {
         try {
-            return (await this.sendRequest(this.baseUrl + "mailing/send", "POST", formObj)).ok;
+            return (await this.sendRequest("mailing/send", "POST", formObj)).ok;
         } catch (e) {
         }
         return false;
@@ -36,7 +46,7 @@ export class ApiContext {
 
     async submitRegistrationForm(formObj: { email: string, password: string }) {
         try {
-            return (await this.sendRequest(this.baseUrl + "account/register",
+            return (await this.sendRequest("account/register",
                 "POST",
                 formObj)).ok;
         } catch (e) {
@@ -46,16 +56,40 @@ export class ApiContext {
 
     async submitLogin(formObj: { email: string; password: string; }) {
         try {
-            var response = await this.sendRequest(this.baseUrl + "account/register",
+            var response = await this.sendRequest("account/login",
                 "POST",
                 formObj);
             if (!response.ok) {
                 return false;
             }
-            const result : { token: string, role : string } = await response.json();
+            const result: { token: string, role: string } = await response.json();
             return result;
         } catch (e) {
         }
         return false;
     }
+
+    async getPlants() : Promise<{name: string, id : number}[]> {
+        const response = await this.sendRequest("plants", "GET");
+        if (!response.ok) {
+            return [];
+        }
+        return await response.json();
+    }
+
+    async getPlant(id: number): Promise<{name: string, id: number, data: []}> {
+        const response = await this.sendRequest("plants/" + id, "GET");
+        if (!response.ok) {
+            return null;
+        }
+
+        return await response.json();
+    }
+
+    async plantIsConnected(id: number): Promise<Boolean> {
+        const response = await this.sendRequest("plants/state/" + id, "GET");
+        const obj = await response.json();
+        return obj.state === "Connected";
+    }
+    
 }
