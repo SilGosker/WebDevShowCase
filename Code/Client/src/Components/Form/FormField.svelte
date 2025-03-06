@@ -5,6 +5,7 @@
         undefined;
     export let name: string;
     export let maxLength: number = undefined;
+    export let minLength: number = undefined;
     export let required: boolean = true;
     export let type:
         | "text"
@@ -14,9 +15,10 @@
         | "tel"
         | "longtext"
         | "password"
-        | "password-nocheck"
-        = "text";
-    export let errorMessage: string = '';
+        | "password-nocheck" = "text";
+    export let min: number = undefined;
+    export let max: number = undefined;
+    export let errorMessage: string = "";
 
     function valueChanged(event: Event) {
         internalErrorMessage = "";
@@ -29,15 +31,26 @@
         }
 
         if (maxLength && value.length > maxLength) {
-            internalErrorMessage = name + " mag niet langer zijn dan " + maxLength + " karakters.";
+            internalErrorMessage =
+                name + " mag niet langer zijn dan " + maxLength + " karakters.";
+            onchange?.(value, false);
+            return;
+        }
+
+        if (minLength && value.length < minLength) {
+            internalErrorMessage =
+                name + " mag niet korter zijn dan " + minLength + " karakters.";
             onchange?.(value, false);
             return;
         }
 
         if (type == "password") {
-            const passwordRegex = /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/;
+            const passwordRegex =
+                /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/;
             if (!value.match(passwordRegex)) {
-                internalErrorMessage = name + " moet minimaal 8 karakters lang zijn, een getal, hoofdletter en een speciaal karakter bevatten.";
+                internalErrorMessage =
+                    name +
+                    " moet minimaal 8 karakters lang zijn, een getal, hoofdletter en een speciaal karakter bevatten.";
                 onchange?.(value, false);
                 return;
             }
@@ -54,10 +67,22 @@
         }
 
         if (type == "number") {
-            internalErrorMessage = name + " is een ongeldig getal";
             try {
-                parseInt(value);
+                const val = parseInt(value);
+                if (val > max) {
+                    internalErrorMessage =
+                        name + " mag niet groter zijn dan " + max;
+                    onchange?.(value, false);
+                    return;
+                }
+                if (val < min) {
+                    internalErrorMessage =
+                        name + " mag niet kleiner zijn dan " + min;
+                    onchange?.(value, false);
+                    return;
+                }
             } catch (e) {
+                internalErrorMessage = name + " is een ongeldig getal";
                 onchange?.(value, false);
                 return;
             }
@@ -69,23 +94,30 @@
 <div class="p-2 w-full">
     {#if type === "longtext"}
         <textarea
-            class="h-64 w-full border p-2 rounded {errorMessage || internalErrorMessage
+            class="h-64 w-full border p-2 rounded {errorMessage ||
+            internalErrorMessage
                 ? 'border-red-600'
                 : ''}"
             {required}
             on:change={valueChanged}
-            maxlength={maxLength || undefined}
-            placeholder={name + (required ? "*" : "")}
-            value={value || ""}
-        ></textarea>
+            maxlength={maxLength}
+            minlength={minLength}
+            placeholder={name + (required ? "*" : "")}>{value || ""}</textarea
+        >
     {:else}
         <input
             type={type === "password-nocheck" ? "password" : type}
-            class="w-full border rounded p-2 {errorMessage || internalErrorMessage ? 'border-red-600' : ''}"
+            class="w-full border rounded p-2 {errorMessage ||
+            internalErrorMessage
+                ? 'border-red-600'
+                : ''}"
             {required}
             on:change={valueChanged}
-            maxlength={maxLength || undefined}
-            autocomplete="{type == 'password' ? 'off' : 'on'}"
+            maxlength={maxLength}
+            minlength={minLength}
+            {min}
+            {max}
+            autocomplete={type == "password" ? "off" : "on"}
             placeholder={name + (required ? "*" : "")}
             value={value || ""}
         />

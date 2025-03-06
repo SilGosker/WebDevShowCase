@@ -1,6 +1,8 @@
 import { push } from "svelte-spa-router";
 import { UserContext } from "./UserContext";
+import Swal from "sweetalert2";
 export class ApiContext {
+
     private baseUrl: string = "https://localhost:7196/";
     private userContext = new UserContext();
 
@@ -23,11 +25,21 @@ export class ApiContext {
         if (body) {
             args.body = JSON.stringify(body)
         }
-        const response = await fetch(this.baseUrl + url, args);
-        if (response.status === 401) {
-            push("/account/login");
+        try {
+            const response = await fetch(this.baseUrl + url, args);
+            if (response.status === 401) {
+                push("/account/login");
+            } else if (response.status === 500) {
+                throw new Error("internal server error");
+            }
+            return response;
+        } catch (e) {
+            Swal.fire({
+                title: "Er is iets fout gegaan",
+                text: `Een onverwachte fout is opgetreden. Probeer het later opnieuw. Als de fout blijft optreden, neem contact op met de ontwikkelaar.`
+            });
         }
-        return response;
+
     }
 
     async submitContactForm(formObj: {
@@ -69,7 +81,7 @@ export class ApiContext {
         return false;
     }
 
-    async getPlants() : Promise<{name: string, id : number}[]> {
+    async getPlants(): Promise<{ name: string, id: number }[]> {
         const response = await this.sendRequest("plants", "GET");
         if (!response.ok) {
             return [];
@@ -77,7 +89,7 @@ export class ApiContext {
         return await response.json();
     }
 
-    async getPlant(id: number): Promise<{name: string, id: number, data: []}> {
+    async getPlant(id: number): Promise<{ name: string, id: number, data: [] }> {
         const response = await this.sendRequest("plants/" + id, "GET");
         if (!response.ok) {
             return null;
@@ -91,5 +103,19 @@ export class ApiContext {
         const obj = await response.json();
         return obj.state === "Connected";
     }
-    
+
+    async createPlant(formObj: { duration: number; name: string; }): Promise<"ReachedLimit" | "SomethingWentWrong" | { id: number; password: string; }> {
+        const response = await this.sendRequest("plants/create", "POST", formObj);
+        if (!response || !response.ok) {
+            const errors = (await response.json() as { errors: { [key: string]: string } }).errors;
+            if (Object.keys(errors).length) {
+                return "SomethingWentWrong";
+            }
+            return "ReachedLimit";
+        }
+
+        const obj = await response.json();
+        return obj;
+    }
+
 }

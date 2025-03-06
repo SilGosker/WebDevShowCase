@@ -13,9 +13,9 @@ using ShowCase.Services.Database;
 using Microsoft.IdentityModel.Tokens;
 using ShowCase.Services.Plants;
 
-var builder = WebApplication.CreateBuilder(args);
-
 AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(3));
+
+var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowAllOrigins").Get<string[]>()!;
 var jwtOptions = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()!;
@@ -83,4 +83,5 @@ app.MapFastEndpoints(options =>
 });
 
 app.Run();
+
 public partial class Program;

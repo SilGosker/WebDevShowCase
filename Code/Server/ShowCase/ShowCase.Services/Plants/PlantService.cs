@@ -44,4 +44,21 @@ public class PlantService : IPlantService
 
         return plant;
     }
+
+    public async Task<string?> CreatePlantAsync(Plant plant, CancellationToken ct)
+    {
+        var currentPlantCount = await _dbContext.Plants.CountAsync(x => x.AccountId == plant.AccountId, ct);
+        
+        if (currentPlantCount >= 5)
+        {
+            return null;
+        }
+
+        // remove the $2$a$ prefix from the password
+        string password = BCrypt.Net.BCrypt.GenerateSalt()[5..];
+        plant.Hash = password;
+        _dbContext.Plants.Add(plant);
+        await _dbContext.SaveChangesAsync(ct);
+        return password;
+    }
 }

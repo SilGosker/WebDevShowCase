@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using ShowCase.Services.Account;
 using ShowCase.Services.Database;
 
@@ -9,6 +10,9 @@ public class Plant : DbEntity
     public int AccountId { get; set; }
 
     [ForeignKey(nameof(AccountId))] public DbAccount? Account { get; set; }
+    [MaxLength(250)]
     public string Name { get; set; } = string.Empty;
 
+    [MaxLength(250)] public string Hash { get; set; } = string.Empty;
+    public int Duration { get; set; }
 }

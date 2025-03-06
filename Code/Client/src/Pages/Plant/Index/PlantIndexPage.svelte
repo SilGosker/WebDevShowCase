@@ -4,6 +4,7 @@
     import { ensureLoggedIn } from "../../../Functions/EnsureLoggedIn";
     import Card from "../../../Components/Card.svelte";
     import Loader from "../../../Components/Loader.svelte";
+    
     ensureLoggedIn();
     const apiContext = new ApiContext();
     let plants: { state: Boolean | undefined; name: string; id: number }[] = [];
@@ -26,7 +27,15 @@
 </script>
 
 <div class="flex flex-col justify-center w-full">
-    <h1 class="text-center text-2xl w-full text-gray-900">Uw planten</h1>
+    
+    <div class="w-full justify-center flex">
+        <h1 class="text-center text-2xl mr-4 text-gray-900">Uw planten</h1>
+
+        <a href="/#/plants/create" class="py-2 px-4 border-sky-600 bg-sky-400 text-white rounded-lg">
+            Plant aanmaken
+        </a>
+    </div>
+
     <div class="w-full flex justify-center flex-wrap">
         {#if loading}
             <i>Laden...</i>
@@ -43,11 +52,11 @@
                         </div>
                     {:else}
                         <div class="my-3 flex justify-between">
-                            <span>Status:</span>
+                            <span class="mr-2">Status:</span>
                             <span
-                                class={plant.state
+                                class="ml-2 {plant.state
                                     ? "text-green-500"
-                                    : "text-red-500"}
+                                    : "text-red-500"}"
                             >
                                 {plant.state ? "verbonden" : "Niet verbonden"}
                             </span>

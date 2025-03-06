@@ -1,7 +1,13 @@
 <script lang="ts">
     import { UserContext } from "../../Functions/UserContext";
 
-    var userContext = new UserContext();
+    let isLoggedIn = false;
+    
+    UserContext.addEventListener("authChanged", (loggedIn) => {
+        isLoggedIn = loggedIn;
+    });
+
+    const userContext = new UserContext();
 
     function logOut() {
         userContext.clear();
@@ -23,7 +29,7 @@
                     />
                 </a>
             </div>
-            <div class="md:px-24 flex justify-between w-full">
+            <div class="md:px-24 flex flex-wrap justify-around md:justify-between w-full">
                 <a
                     href="/"
                     class="text-xl md:text-base font-normal text-gray-500 list-none hover:text-gray-900"
@@ -36,20 +42,26 @@
                 >
                     Contact
                 </a>
-                {#if !userContext.isAuth()}
+                {#if isLoggedIn}
                     <a
-                        href="/#/account/login"
+                        href="/#/plants/"
                         class="text-xl md:text-base font-normal text-gray-500 list-none hover:text-gray-900"
                     >
-                        Inloggen
+                        Uw planten
                     </a>
-                {:else}
                     <a
                         href="/"
                         on:click={logOut}
                         class="text-xl md:text-base font-normal text-gray-500 list-none hover:text-gray-900"
                     >
                         Uitloggen
+                    </a>
+                {:else}
+                    <a
+                        href="/#/account/login"
+                        class="text-xl md:text-base font-normal text-gray-500 list-none hover:text-gray-900"
+                    >
+                        Inloggen
                     </a>
                 {/if}
             </div>

@@ -3,14 +3,12 @@
     import { ApiContext } from "../../../Functions/ApiContext";
     import Loader from "../../../Components/Loader.svelte";
 
-    export let params = null;
     const apiContext = new ApiContext();
     let plant = null;
 
     onMount(async () => {
-        if (params && params.id) {
-            plant = await apiContext.getPlant(params.id);
-        }
+        const id = parseInt(window.location.href.substring(window.location.href.lastIndexOf('/') + 1));
+            plant = await apiContext.getPlant(id);
     });
 
 </script>

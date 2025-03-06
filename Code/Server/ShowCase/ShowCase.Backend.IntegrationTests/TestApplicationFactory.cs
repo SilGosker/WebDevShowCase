@@ -59,7 +59,8 @@ public class TestApplicationFactory : WebApplicationFactory<Program>
             if (TryRemoveService(services, typeof(IPlantService)))
             {
                 var mockPlantService = new Mock<IPlantService>();
-                mockPlantService.Setup(s => s.GetPlantAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                mockPlantService.Setup(s =>
+                        s.GetPlantAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync((int accountId, int plantId, CancellationToken ct) =>
                     {
                         if (plantId == ConnectedPlantId)
@@ -70,6 +71,7 @@ public class TestApplicationFactory : WebApplicationFactory<Program>
                                 Name = "Connected Plant"
                             };
                         }
+
                         if (plantId == DisconnectedPlantId)
                         {
                             return new Plant()
@@ -78,6 +80,7 @@ public class TestApplicationFactory : WebApplicationFactory<Program>
                                 Name = "Disconnected Plant"
                             };
                         }
+
                         return null;
                     });
 
@@ -87,7 +90,11 @@ public class TestApplicationFactory : WebApplicationFactory<Program>
                         : plantId == ConnectedPlantId
                             ? "Connected"
                             : "Disconnected");
-                services.AddSingleton(mockPlantService.Object);
+
+                mockPlantService.Setup(x => x.CreatePlantAsync(It.IsAny<Plant>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync((Plant plant, CancellationToken _) => "password");
+
+            services.AddSingleton(mockPlantService.Object);
             }
         });
     }
