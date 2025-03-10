@@ -34,7 +34,8 @@ public class PlantDetailsEndpoint : EndpointWithoutRequest<PlantDetailsResponse>
         await SendAsync(new PlantDetailsResponse()
         {
             Name = plant.Name,
-            Id = plant.Id
+            Id = plant.Id,
+            Duration = plant.Duration
         }, cancellation: ct);
         return;
     }

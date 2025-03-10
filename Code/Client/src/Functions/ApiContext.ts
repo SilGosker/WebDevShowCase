@@ -2,6 +2,16 @@ import { push } from "svelte-spa-router";
 import { UserContext } from "./UserContext";
 import Swal from "sweetalert2";
 export class ApiContext {
+    async updatePlant(form: { duration: number; name: string; id: number, regeneratePassword: boolean })
+    : Promise<{id: number, password: string | null} | null> {
+        console.log(form);
+        const response = await this.sendRequest("plants/update/" + form.id, "PUT", form);
+        if (!response.ok) {
+            return null;
+        }
+
+        return await response.json();
+    }
 
     private baseUrl: string = "https://localhost:7196/";
     private userContext = new UserContext();

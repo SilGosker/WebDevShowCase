@@ -8,7 +8,7 @@
 
     onMount(async () => {
         const id = parseInt(window.location.href.substring(window.location.href.lastIndexOf('/') + 1));
-            plant = await apiContext.getPlant(id);
+        plant = await apiContext.getPlant(id);
     });
 
 </script>

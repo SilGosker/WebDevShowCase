@@ -6,4 +6,5 @@ public interface IPlantService
     Task<string?> IsConnectedAsync(int accountId, int id);
     Task<Plant?> GetPlantAsync(int accountId, int id, CancellationToken ct);
     Task<string?> CreatePlantAsync(Plant plant, CancellationToken ct);
+    Task<string?> UpdatePlantAsync(Plant plant, bool regeneratePassword, CancellationToken ct);
 }

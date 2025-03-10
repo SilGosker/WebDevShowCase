@@ -61,4 +61,27 @@ public class PlantService : IPlantService
         await _dbContext.SaveChangesAsync(ct);
         return password;
     }
+
+    public async Task<string?> UpdatePlantAsync(Plant plant, bool regeneratePassword, CancellationToken ct)
+    {
+        var dbPlant = await _dbContext.Plants.FirstOrDefaultAsync(x => x.AccountId == plant.AccountId && x.Id == plant.Id, ct);
+        if (dbPlant == null)
+        {
+            return null;
+        }
+
+        dbPlant.Name = plant.Name;
+        dbPlant.Duration = plant.Duration;
+
+        string? password = null;
+        if (regeneratePassword)
+        {
+            // remove the $2$a$ prefix from the password
+            password = BCrypt.Net.BCrypt.GenerateSalt()[5..];
+            dbPlant.Hash = password;
+        }
+        await _dbContext.SaveChangesAsync(ct);
+
+        return password;
+    }
 }
