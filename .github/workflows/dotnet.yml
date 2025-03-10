@@ -20,11 +20,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-    - name: Move to Server Directory
-      run: cd ./Code/Server/ShowCase
     - name: Restore dependencies
+      working-directory: Code/Server/ShowCase
       run: dotnet restore ShowCase.sln
     - name: Build
+      working-directory: Code/Server/ShowCase
       run: dotnet build --no-restore
     - name: Test
+      working-directory: Code/Server/ShowCase
       run: dotnet test --no-build --verbosity normal
