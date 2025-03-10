@@ -23,7 +23,7 @@ jobs:
     - name: Move to Server Directory
       run: cd ./Code/Server/ShowCase
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ShowCase.sln
     - name: Build
       run: dotnet build --no-restore
     - name: Test
