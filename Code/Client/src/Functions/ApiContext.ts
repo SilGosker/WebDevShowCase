@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 export class ApiContext {
     async updatePlant(form: { duration: number; name: string; id: number, regeneratePassword: boolean })
     : Promise<{id: number, password: string | null} | null> {
-        console.log(form);
         const response = await this.sendRequest("plants/update/" + form.id, "PUT", form);
         if (!response.ok) {
             return null;
@@ -99,7 +98,7 @@ export class ApiContext {
         return await response.json();
     }
 
-    async getPlant(id: number): Promise<{ name: string, id: number, data: [] }> {
+    async getPlant(id: number): Promise<{ name: string, id: number, plantValues: { pumpState: boolean }[] }> {
         const response = await this.sendRequest("plants/" + id, "GET");
         if (!response.ok) {
             return null;

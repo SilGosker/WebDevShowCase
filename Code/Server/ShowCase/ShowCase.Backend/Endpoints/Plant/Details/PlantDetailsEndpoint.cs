@@ -35,7 +35,12 @@ public class PlantDetailsEndpoint : EndpointWithoutRequest<PlantDetailsResponse>
         {
             Name = plant.Name,
             Id = plant.Id,
-            Duration = plant.Duration
+            Duration = plant.Duration,
+            PlantValues = plant.PlantValues.Select(x => new PlantValuesResponse()
+            {
+                PumpState = x.PumpState,
+                RecordedAt = x.RecordedAt
+            }).ToArray()
         }, cancellation: ct);
         return;
     }

@@ -28,21 +28,17 @@ public class PlantService : IPlantService
             return null;
         }
 
-        return _easySocketService.Any($"Plant{id}", "Controller")
+        return _easySocketService.Any($"Plant:{id}", "Hydro")
             ? "Connected"
             : "Disconnected";
     }
 
     public async Task<Plant?> GetPlantAsync(int accountId, int id, CancellationToken cancellationToken)
     {
-        var plant = await _dbContext.Plants.FindAsync(keyValues: [id], cancellationToken);
-
-        if (plant?.AccountId != accountId)
-        {
-            return null;
-        }
-
-        return plant;
+        return await _dbContext.Plants
+            .AsNoTracking()
+            .Include(x => x.PlantValues.OrderByDescending(p => p.Id).Take(100).OrderBy(o => o.Id))
+            .FirstOrDefaultAsync(x => x.Id == id && x.AccountId == accountId, cancellationToken: cancellationToken)!;
     }
 
     public async Task<string?> CreatePlantAsync(Plant plant, CancellationToken ct)
@@ -56,7 +52,7 @@ public class PlantService : IPlantService
 
         // remove the $2$a$ prefix from the password
         string password = BCrypt.Net.BCrypt.GenerateSalt()[5..];
-        plant.Hash = password;
+        plant.Hash = BCrypt.Net.BCrypt.HashPassword(password);
         _dbContext.Plants.Add(plant);
         await _dbContext.SaveChangesAsync(ct);
         return password;
@@ -78,7 +74,7 @@ public class PlantService : IPlantService
         {
             // remove the $2$a$ prefix from the password
             password = BCrypt.Net.BCrypt.GenerateSalt()[5..];
-            dbPlant.Hash = password;
+            dbPlant.Hash = BCrypt.Net.BCrypt.HashPassword(password);
         }
         await _dbContext.SaveChangesAsync(ct);
 

@@ -17,7 +17,7 @@
         }));
 
         plants.forEach(async (plant) => {
-            await new Promise((r) => setTimeout(r, Math.random() * 1000 + 50));
+            await new Promise((r) => setTimeout(r, Math.random() * 1500 + 50));
             plant.state = await apiContext.plantIsConnected(plant.id);
             // trigger rerender
             plants = plants;

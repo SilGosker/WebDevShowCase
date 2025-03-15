@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using ShowCase.Backend.Configuration;
 using ShowCase.Services.Database;
 using Microsoft.IdentityModel.Tokens;
+using ShowCase.Backend.BackgroundServices;
+using ShowCase.Backend.Endpoints.PlantValue;
 using ShowCase.Services.Plants;
 
 AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(3));
@@ -65,15 +67,23 @@ builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(nameof(SmtpOptions)));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+builder.Services.AddHostedService<WateringBackgroundService>();
 
 var app = builder.Build();
 
-app.UseCors("SvelteApp");
 app.UseHsts();
+
+app.UseEasySockets()
+    .AddEasySocket<HydroComputerSocket>("/hydro",
+        options => { options.AddAsyncAuthenticator<HydroComputerAuthenticator>(); })
+    .AddEasySocket<PlantWatcherSocket>("/watch", options =>
+    {
+        options.AddAsyncAuthenticator<PlantWatcherAuthenticator>();
+    });
+
+
 app.UseHttpsRedirection();
-
-app.UseEasySockets();
-
+app.UseCors("SvelteApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
