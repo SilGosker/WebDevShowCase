@@ -15,9 +15,11 @@ public class PlantWatcherAuthenticator : IEasySocketAsyncAuthenticator
 {
     private readonly KasDbContext _dbContext;
     private readonly JwtOptions _jwtOptions;
-    public PlantWatcherAuthenticator(KasDbContext dbContext, IOptions<JwtOptions> jwtOptions)
+    private readonly ILogger<PlantWatcherAuthenticator> _logger;
+    public PlantWatcherAuthenticator(KasDbContext dbContext, IOptions<JwtOptions> jwtOptions, ILogger<PlantWatcherAuthenticator> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
         _jwtOptions = jwtOptions.Value;
     }
 
@@ -58,22 +60,26 @@ public class PlantWatcherAuthenticator : IEasySocketAsyncAuthenticator
         var principal = GetPrincipal(authorizationHeader!);
         if (principal is null)
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization parameter: {AuthParameter}", context.TraceIdentifier, authorizationHeader);
             return false;
         }
 
         if (principal.Identity is null or { IsAuthenticated: false })
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization parameter: {AuthParameter}", context.TraceIdentifier, authorizationHeader);
             return false;
         }
 
         if (!context.Request.Query.TryGetValue("plantId", out var plantIdStr) || !int.TryParse(plantIdStr, out int plantId))
         {
+            _logger.LogWarning("Request {Request} provided valid authorization but invalid plantId: {AuthParameter}", context.TraceIdentifier, plantIdStr);
             return false;
         }
         var accountId = principal.Id();
 
         if (!await _dbContext.Plants.AnyAsync(p => p.Id == plantId && p.AccountId == accountId))
         {
+            _logger.LogWarning("Request {Request} provided valid authorization but invalid plantId: {AuthParameter}", context.TraceIdentifier, plantIdStr);
             return false;
         }
 

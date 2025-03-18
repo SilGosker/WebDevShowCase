@@ -75,10 +75,17 @@ app.UseHsts();
 
 app.UseEasySockets()
     .AddEasySocket<HydroComputerSocket>("/hydro",
-        options => { options.AddAsyncAuthenticator<HydroComputerAuthenticator>(); })
+        options =>
+        {
+            options.AddAsyncAuthenticator<HydroComputerAuthenticator>();
+            options.ReceiveBufferSize = 46;
+            options.SendBufferSize = 46;
+        })
     .AddEasySocket<PlantWatcherSocket>("/watch", options =>
     {
         options.AddAsyncAuthenticator<PlantWatcherAuthenticator>();
+        options.ReceiveBufferSize = 46;
+        options.SendBufferSize = 46;
     });
 
 

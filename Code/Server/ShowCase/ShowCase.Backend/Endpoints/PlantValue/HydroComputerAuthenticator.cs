@@ -9,17 +9,20 @@ public class HydroComputerAuthenticator : IEasySocketAsyncAuthenticator
 {
     private readonly KasDbContext _kasDbContext;
     private readonly IEasySocketService _easySocketService;
+    private readonly ILogger<PlantValueSocket> _logger;
 
-    public HydroComputerAuthenticator(KasDbContext kasDbContext, IEasySocketService easySocketService)
+    public HydroComputerAuthenticator(KasDbContext kasDbContext, IEasySocketService easySocketService, ILogger<PlantValueSocket> logger)
     {
         _kasDbContext = kasDbContext;
         _easySocketService = easySocketService;
+        _logger = logger;
     }
 
     public async Task<EasySocketAuthenticationResult> AuthenticateAsync(EasySocketAuthenticationResult currentAuthenticationResult, HttpContext context)
     {
         if (!context.Request.Headers.TryGetValue("Authorization", out var authorizationValue) || string.IsNullOrEmpty(authorizationValue))
         {
+            _logger.LogWarning("Request {Request} did not provide Authorization header", context.TraceIdentifier);
             return false;
         }
 
@@ -30,16 +33,19 @@ public class HydroComputerAuthenticator : IEasySocketAsyncAuthenticator
         var split = fromBase64.Split(':');
         if (split.Length < 2)
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization header: {Base64Str}", context.TraceIdentifier, fromBase64);
             return false;
         }
 
         if (!int.TryParse(split[0], out int plantId))
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization header: {Base64Str}", context.TraceIdentifier, fromBase64);
             return false;
         }
 
         if (_easySocketService.Any("Plant:" + plantId, "Hydro"))
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization header: {Base64Str}", context.TraceIdentifier, fromBase64);
             return false;
         }
 
@@ -48,11 +54,13 @@ public class HydroComputerAuthenticator : IEasySocketAsyncAuthenticator
         var plant = await _kasDbContext.Plants.FindAsync(plantId);
         if (plant is null)
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization header: {Base64Str}", context.TraceIdentifier, fromBase64);
             return false;
         }
 
         if (!BCrypt.Net.BCrypt.Verify(password, plant.Hash))
         {
+            _logger.LogWarning("Request {Request} provided invalid authorization header: {Base64Str}", context.TraceIdentifier, fromBase64);
             return false;
         }
 
