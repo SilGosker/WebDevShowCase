@@ -31,9 +31,11 @@
                 Accepteer
             </button>
             <p class="px-4">
-                Deze website gebruikt cookies.
-                We gebruiken cookies om content te personaliseren, voor social media en het analyseren
-                van verkeer op de website, advertenties.
+                Deze applicatie maakt geen gebruik van cookies, maar verwerkt wel je email adres bij het inloggen.
+                We gebruiken je email adres, metadata of dergelijke <b>niet</b> om het door te verkopen aan derde partijen,
+                maar om simpele inlogfunctionaliteit mogelijk te maken. <br />
+
+                Bij het accepteren van de popup óf gebruik te maken van de registratie-functie geef je toestemming aan het systeem om je e-mail op te slaan.
             </p>
             <button on:click={declineCookies} class="py-2 px-4 border-gray-600 bg-gray-400 text-white rounded-lg">
                 Negeren
